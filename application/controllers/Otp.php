@@ -15,8 +15,6 @@ use OTPHP\TOTP;
 // use Endroid\QrCode\ErrorCorrectionLevel\ErrorCorrectionLevelHigh;
 // use Endroid\QrCode\RoundBlockSizeMode\RoundBlockSizeModeMargin;
 // use Endroid\QrCode\Writer\SvgWriter;
-
-
 class Otp extends CI_Controller {
 
     public function __construct()
