@@ -201,8 +201,8 @@ public function upload_video() {
         'version' => 'latest',
         'suppress_php_deprecation_warning' => true,
         'credentials' => [
-            'key'    => 'REDACTED',
-            'secret' => 'REDACTED',
+            'key'    => 'AWS_ACCESS_KEY',
+            'secret' => 'AWS_ACCESS_KEY',
         ]
     ]);
 
