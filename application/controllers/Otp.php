@@ -22,7 +22,7 @@ class Otp extends CI_Controller {
     public function __construct()
 {
     parent::__construct();
-    $this->load->database(); // 👈 This is the important line
+    $this->load->database();
 }
 
     public function index() {
@@ -92,7 +92,7 @@ public function send_otp() {
     if ($message && $message->sid) {
         $this->load->view('verify_otp');
     } else {
-        echo "❌ Failed to send OTP.";
+        echo "Failed to send OTP.";
     }
 }
 
@@ -172,7 +172,7 @@ public function upload_video() {
     header("Access-Control-Allow-Headers: Content-Type");
 
     if ($_SERVER['REQUEST_METHOD'] === 'OPTIONS') {
-        exit; // handle preflight request
+        exit; 
     }
 
     if (!isset($_FILES['video'])) {
@@ -183,7 +183,7 @@ public function upload_video() {
         return;
     }
 
-    $mobile = $this->session->userdata('mobile'); // ✅ get mobile from session
+    $mobile = $this->session->userdata('mobile');
     if (!$mobile) {
         echo json_encode([
             'status' => 'error',
@@ -215,8 +215,6 @@ public function upload_video() {
             'SourceFile' => $file,
             'ContentType' => 'video/webm'
         ]);
-
-        // ✅ Update existing row instead of inserting new
         $this->db->where('mobile', $mobile);
         $this->db->update('video_auth', [
             'video_url' => $result['ObjectURL']
@@ -248,12 +246,10 @@ public function upload_photo() {
         return;
     }
 
-    // ✅ Upload to S3
     $fileTmp  = $_FILES['photo']['tmp_name'];
     $fileName = 'photo_' . time() . '.jpg';
     $s3_url   = $this->s3_upload($fileTmp, $fileName);
     if (!$record_id) {
-        // ✅ Create new row if no record_id is given
         $this->db->insert('video_auth', [
             'mobile'     => $mobile,
             'photo_url'  => $s3_url,
@@ -261,7 +257,6 @@ public function upload_photo() {
         ]);
         $record_id = $this->db->insert_id();
     } else {
-        // ✅ Update existing row
         $this->db->where('id', $record_id);
         $this->db->update('video_auth', ['photo_url' => $s3_url]);
     }
@@ -279,7 +274,6 @@ public function upload_photo() {
 
 private function s3_upload($fileTmp, $fileName)
 {
-    // AWS S3 credentials
     $bucketName = 'vasanthaleela-07082025'; 
     $region     = 'us-east-1';
 
@@ -296,15 +290,12 @@ private function s3_upload($fileTmp, $fileName)
     ]);
 
     try {
-        // Upload to S3
         $result = $s3Client->putObject([
             'Bucket'     => $bucketName,  
             'Key'        => $fileName,
             'SourceFile' => $fileTmp,      
-            // 'ACL'        => 'public-read', // Optional: makes it viewable
+            // 'ACL'        => 'public-read',
         ]);
-
-        // Return the file's public URL
         return $result['ObjectURL'];
 
     } catch (Aws\Exception\AwsException $e) {
@@ -312,11 +303,6 @@ private function s3_upload($fileTmp, $fileName)
         return false;
     }
 }
-
-
-
-
-
 public function generate_qr() {
     $mobile = $this->input->post('mobile');
     $totp = TOTP::create();
@@ -414,8 +400,6 @@ public function save_user_video()
         ]);
         return;
     }
-
-    // Normal OTP flow
     if ($is_six_digits) {
         $totp = TOTP::create($secret);
         if ($totp->verify($code)) {
@@ -439,7 +423,6 @@ public function save_user_video()
         return;
     }
 
-    // Everything else is blocked
     echo json_encode([
         'status'  => 'error',
         'message' => 'Invalid code. Video not allowed.'
@@ -447,7 +430,7 @@ public function save_user_video()
 }
 public function upload_logo()
 {
-    $mobile = $this->session->userdata('mobile'); // always from session!
+    $mobile = $this->session->userdata('mobile'); 
     if (!$mobile) {
         echo json_encode(['status' => 'error', 'message' => 'Not logged in']);
         return;
