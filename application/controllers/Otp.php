@@ -313,6 +313,10 @@ private function s3_upload($fileTmp, $fileName)
     }
 }
 
+
+
+
+
 public function generate_qr() {
     $mobile = $this->input->post('mobile');
     $totp = TOTP::create();
