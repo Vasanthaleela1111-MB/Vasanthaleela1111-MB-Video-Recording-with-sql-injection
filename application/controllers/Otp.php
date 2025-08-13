@@ -45,8 +45,8 @@ public function send_otp() {
         'version' => 'latest',
         'suppress_php_deprecation_warning' => true,
         'credentials' => [
-            'key'    => 'REDACTED',
-            'secret' => 'REDACTED',
+            'key'    => getenv('AWS_ACCESS_KEY_ID'),
+    'secret' => getenv('AWS_SECRET_ACCESS_KEY'),
         ]
     ]);
 
