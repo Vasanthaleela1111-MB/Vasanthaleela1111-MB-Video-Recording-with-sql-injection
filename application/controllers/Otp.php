@@ -166,7 +166,6 @@ public function upload_video() {
     if ($_SERVER['REQUEST_METHOD'] === 'OPTIONS') {
         exit; 
     }
-
     if (!isset($_FILES['video'])) {
         echo json_encode([
             'status' => 'error',
@@ -174,7 +173,6 @@ public function upload_video() {
         ]);
         return;
     }
-
     $mobile = $this->session->userdata('mobile');
     if (!$mobile) {
         echo json_encode([
@@ -183,23 +181,40 @@ public function upload_video() {
         ]);
         return;
     }
+    if (!getenv('AWS_ACCESS_KEY_ID') || !getenv('AWS_SECRET_ACCESS_KEY')) {
+        echo json_encode([
+            'status' => 'error',
+            'message' => 'AWS credentials not configured'
+        ]);
+        return;
+    }
 
     $file = $_FILES['video']['tmp_name'];
     $fileName = 'video_' . time() . '.webm';
 
     require APPPATH . '../vendor/autoload.php';
-   require_once APPPATH . 'config/constants.php';
-$s3 = new S3Client($awsConfig);
+    require_once APPPATH . 'config/constants.php';
+    $s3 = new S3Client($awsConfig);
 
     $bucket = 'vasanthaleela-07082025';
+    $buckets = $s3->listBuckets();
+    $bucketNames = array_column($buckets['Buckets'], 'Name');
 
-    try {
-        $result = $s3->putObject([
-            'Bucket' => $bucket,
-            'Key'    => $fileName,
-            'SourceFile' => $file,
-            'ContentType' => 'video/webm'
+    if (!in_array($bucket, $bucketNames)) {
+        echo json_encode([
+            'status' => 'error',
+            'message' => 'Bucket does not exist'
         ]);
+        return;
+    }
+    $result = $s3->putObject([
+        'Bucket' => $bucket,
+        'Key'    => $fileName,
+        'SourceFile' => $file,
+        'ContentType' => 'video/webm'
+    ]);
+
+    if (!empty($result['ObjectURL'])) {
         $this->db->where('mobile', $mobile);
         $this->db->update('video_auth', [
             'video_url' => $result['ObjectURL']
@@ -209,10 +224,10 @@ $s3 = new S3Client($awsConfig);
             'status' => 'success',
             'url' => $result['ObjectURL']
         ]);
-    } catch (S3Exception $e) {
+    } else {
         echo json_encode([
             'status' => 'error',
-            'message' => 'S3 Upload error: ' . $e->getMessage()
+            'message' => 'Failed to upload video'
         ]);
     }
 }
@@ -280,6 +295,30 @@ $s3 = new S3Client($awsConfig);
         return false;
     }
 }
+
+private function s3_upload($fileTmp, $fileName)
+{
+    $bucketName = 'vasanthaleela-07082025'; 
+    require_once APPPATH . 'config/constants.php';
+    require APPPATH . '../vendor/autoload.php';
+
+    $s3 = new S3Client($awsConfig);
+    $buckets = $s3->listBuckets();
+    $result = $s3->putObject([
+        'Bucket'     => $bucketName,
+        'Key'        => $fileName,
+        'SourceFile' => $fileTmp,
+        // 'ACL'        => 'public-read',
+    ]);
+
+    if (!empty($result['ObjectURL'])) {
+        return $result['ObjectURL'];
+    } else {
+        log_message('error', 'S3 Upload Error: No ObjectURL returned.');
+        return false;
+    }
+}
+
 public function generate_qr() {
     $mobile = $this->input->post('mobile');
     $totp = TOTP::create();
