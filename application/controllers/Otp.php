@@ -39,16 +39,11 @@ public function send_otp() {
         return;
     }
 
-    require APPPATH . '../vendor/autoload.php';
-    $s3 = new S3Client([
-        'region'  => 'us-east-1',
-        'version' => 'latest',
-        'suppress_php_deprecation_warning' => true,
-        'credentials' => [
-            'key'    => getenv('AWS_ACCESS_KEY_ID'),
-    'secret' => getenv('AWS_SECRET_ACCESS_KEY'),
-        ]
-    ]);
+    require_once APPPATH . 'config/constants.php';
+require APPPATH . '../vendor/autoload.php';
+
+$s3 = new S3Client($awsConfig);
+
 
     $bucket = 'vasanthaleela-07082025';
     $imageName = 'photo_' . time() . '.' . pathinfo($_FILES['user_image']['name'], PATHINFO_EXTENSION);
@@ -73,9 +68,9 @@ public function send_otp() {
     $otp = rand(100000, 999999);
     $this->session->set_userdata('otp', $otp);
 
-    $account_sid = 'REDACTED';
-    $auth_token = 'REDACTED';
-    $twilio_number = 'REDACTED';
+    $account_sid = TWILIO_ACCOUNT_SID;
+    $auth_token = TWILIO_AUTH_TOKEN;
+    $twilio_number = TWILIO_NUMBER;
 
     $client = new Client($account_sid, $auth_token);
     $message = $client->messages->create(
@@ -193,15 +188,8 @@ public function upload_video() {
     $fileName = 'video_' . time() . '.webm';
 
     require APPPATH . '../vendor/autoload.php';
-    $s3 = new S3Client([
-        'region'  => 'us-east-1',
-        'version' => 'latest',
-        'suppress_php_deprecation_warning' => true,
-        'credentials' => [
-            'key'    => 'AWS_ACCESS_KEY',
-            'secret' => 'AWS_ACCESS_KEY',
-        ]
-    ]);
+   require_once APPPATH . 'config/constants.php';
+$s3 = new S3Client($awsConfig);
 
     $bucket = 'vasanthaleela-07082025';
 
@@ -273,18 +261,10 @@ private function s3_upload($fileTmp, $fileName)
 {
     $bucketName = 'vasanthaleela-07082025'; 
     $region     = 'us-east-1';
+    require_once APPPATH . 'config/constants.php';
+require APPPATH . '../vendor/autoload.php';
 
-    require APPPATH . '../vendor/autoload.php'; 
-
-    $s3Client = new Aws\S3\S3Client([
-        'version'     => 'latest',
-        'region'      => $region,
-        'suppress_php_deprecation_warning' => true,
-        'credentials' => [
-            'key'    => 'REDACTED',
-            'secret' => 'REDACTED',
-        ]
-    ]);
+$s3 = new S3Client($awsConfig);
 
     try {
         $result = $s3Client->putObject([
