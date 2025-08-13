@@ -271,31 +271,6 @@ public function upload_photo() {
     ]);
 }
 
-
-private function s3_upload($fileTmp, $fileName)
-{
-    $bucketName = 'vasanthaleela-07082025'; 
-    $region     = 'us-east-1';
-    require_once APPPATH . 'config/constants.php';
-require APPPATH . '../vendor/autoload.php';
-
-$s3 = new S3Client($awsConfig);
-
-    try {
-        $result = $s3Client->putObject([
-            'Bucket'     => $bucketName,  
-            'Key'        => $fileName,
-            'SourceFile' => $fileTmp,      
-            // 'ACL'        => 'public-read',
-        ]);
-        return $result['ObjectURL'];
-
-    } catch (Aws\Exception\AwsException $e) {
-        log_message('error', 'S3 Upload Error: ' . $e->getAwsErrorMessage());
-        return false;
-    }
-}
-
 private function s3_upload($fileTmp, $fileName)
 {
     $bucketName = 'vasanthaleela-07082025'; 
