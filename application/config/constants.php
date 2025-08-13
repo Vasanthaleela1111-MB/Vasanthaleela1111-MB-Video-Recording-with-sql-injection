@@ -11,6 +11,10 @@ $awsConfig = [
         'secret' => AWS_SECRET_ACCESS_KEY,
     ]
 ];
+
+define('TWILIO_ACCOUNT_SID', getenv('TWILIO_ACCOUNT_SID'));
+define('TWILIO_AUTH_TOKEN', getenv('TWILIO_AUTH_TOKEN'));
+define('TWILIO_NUMBER', getenv('TWILIO_NUMBER'));
 /*
 |--------------------------------------------------------------------------
 | Display Debug backtrace
