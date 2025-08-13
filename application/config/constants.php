@@ -1,5 +1,7 @@
 <?php
 defined('BASEPATH') OR exit('No direct script access allowed');
+define('AWS_ACCESS_KEY_ID', getenv('AWS_ACCESS_KEY_ID'));
+define('AWS_SECRET_ACCESS_KEY', getenv('AWS_SECRET_ACCESS_KEY'));
 /*
 |--------------------------------------------------------------------------
 | Display Debug backtrace
